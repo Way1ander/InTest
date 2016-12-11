@@ -10,28 +10,29 @@ Matrix::Matrix()
 
 int Matrix::Read(char* filename)
 {
-	n = 0;// For out file clearance if something goes wrong
+	n = 0;// выходной файл будет чист при ошибке
 	ifstream anfile("animals");
 	if (anfile.is_open()){
 		queue<double> tmp;
 		double i;
 		int count = 0;
-
+		animnum = std::count(std::istreambuf_iterator<char>(anfile),
+			std::istreambuf_iterator<char>(), '\n') + 1;
+		//int max = animnum * 3;//ожидаемое количество чисел
 		anfile.seekg(0, std::ios::end);
 		int size = anfile.tellg();
-
 		anfile.seekg(0, 0);
 		while (!anfile.eof() && count <= size){
 			anfile >> i;
 			tmp.push(i);
 			++count;
 		}
-		if (count > size) return 1;//Animals is really wrong
 
+		if (count > size) return 6;//¬веденное количество превышает ожидаемое
 		double num;
 		animnum = num = (double)count / 3;
 		if (num != (double)animnum){
-			return 2;//Animals is not 3 params for each
+			return 9;//ƒл€ животного есть больше 3х параметров
 		}
 		animals = new Animal[animnum];
 		double a = -1, b = -1, c = -1;
@@ -43,25 +44,23 @@ int Matrix::Read(char* filename)
 			c = tmp.front();
 			tmp.pop();
 			if (animals[i].setNumber(i) || animals[i].setChance(a) || animals[i].setPresence(b) || animals[i].setscores(c)){
-				return 3;//Animals specs is wrong
+				return 7;//Ќекорректные параметры животного
 			}
 			a = b = c = -1;
 		}
+		cout << "animals's properties:\n";
 		for (int i = 0; i < animnum; i++){
-			//cout << animals[i].getNum() << " " << animals[i].getChance() << " " << animals[i].getHave() << " " << animals[i].getPoints() << "\n";
+			cout << animals[i].getNumber() << " " << animals[i].getChance() << " " << animals[i].getPresence() << " " << animals[i].getscores() << "\n";
 		}
 	}
 	anfile.close();
 	ifstream infile(filename);
 	if (infile.is_open()){
-		//cout << "File name:" << filename << "\n";
+		cout << filename << ":\n";
 		int count = 0;
 		int size = 0;
-
 		infile.seekg(0, std::ios::end);
 		size = infile.tellg();
-		//cout << "Size of file = " << size << "\n";
-
 		queue<double> tmp;
 		double i;
 		infile.clear();
@@ -69,52 +68,53 @@ int Matrix::Read(char* filename)
 		while (!infile.eof() && count <= size){
 			infile >> i;
 			tmp.push(i);
-			//cout << i << "\n";
 			++count;
 			i = -1;
 		}
-		if (count > size) return 4;//Input is really wrong
-		int strings = 1;//Strings after matrix
-		double nd = (sqrt((double)strings*(double)strings + 4 * (double)count) - (double)strings) / 2.0;
+		if (count > size) return 8;//Ќеверное количество чисел
+		int str = 1;//ѕосле м-цы однозначно будет одна строка
+		double nd = (pow(pow((double)str, 2) + 4 * (double)count, 0.5) - (double)str) / 2.0;
 		n = (int)nd;
 
-
 		if (nd != (double)n){
-			n = 0;// For out file clearance if something goes wrong
-			return 5;//Uncorect num of numbers
+			n = 0;
+			return 1;// оличество параметров животных не соответствует количеству животных
 		}
 
-		//cout << "n=" << n << "\n";
+		cout << "n=" << n << "\n";
 		arr = new int*[n];
 		names = new int[n];
 		double cur;
-		for (int i = 0; i < n + strings; i++) arr[i] = new int[n];
-		for (int i = 0; i < n + strings; i++){
+		for (int i = 0; i < n; i++) arr[i] = new int[n];
+		for (int i = 0; i < n + str; i++){
 			for (int j = 0; j < n; j++){
 				cur = 0;
 				cur = tmp.front();
 				if (cur < 0){
-					n = 0;// For out file clearance if something goes wrong
-					return 6;//Something is less then 0
+					n = 0;
+					return 2;//ѕараметр <0
 				}
 
 				if (cur == 0 && i < n && i != j){
-					n = 0;// For out file clearance if something goes wrong
-					return 7;//The path length is 0 between two animals
+					n = 0;
+					return 3;//ѕуть между животными =0
 				}
-				else arr[i][j] = (int)cur;
 
 				if (i == j && cur != 0){
-					n = 0;// For out file clearance if something goes wrong
-					return 8;//The path length is not 0 on diagonal
+					n = 0;
+					return 4;//Ќа главной диагонали присутствует число, отличное от 0 (путь от животного к самому себе !=0)
 				}
-				else arr[i][j] = (int)cur;
+				else{
+					if (i < n) arr[i][j] = (int)cur;
+				}
 
 				if (i == n && (cur < 0 || cur >= animnum)){
-					n = 0;// For out file clearance if something goes wrong
-					return 9;//Number of animal in namelist is less then 0 or bigger then animals in "animals" file
+					n = 0;
+					return 5;// ол-во животных в animals и input не совпадает
 				}
-				else names[j] = (int)cur;
+				else{
+					if (i == n) names[j] = (int)cur;
+				}
 
 				//cout << cur << " ";
 				tmp.pop();
