@@ -130,32 +130,31 @@ int Matrix::Write(char* filename)
 {
 	ofstream outfile(filename, ios_base::trunc);
 	int* test;
-	if (n > 0 && path != 0){//If n==0 then out file will be just cleared
-		test = new int[n];
-		for (int i = 0; i < n; i++){
+	if (n > 0 && path != 0){//n==0, файл очищается
+		test = new int[animnum];
+		for (int i = 0; i < animnum; i++){
 			test[i] = 0;
 		}
 		for (int i = 0; i < n; i++){
 			test[path[i]]++;
 			if (test[path[i]]>1){
 				outfile.close();
-				return 0;// Uncorrect path
+				return 0;// Некорректный путь(*)
 			}
 		}
 		if (outfile.is_open()){
 			outfile << path[0];
 			for (int i = 1; i < n; i++){
-				outfile << " " << path[i];
+				outfile << " -> " << path[i];
 			}
 		}
 		outfile.close();
-		return 1;// Correct
+		return 1;// закрыто
 	}
 	outfile.close();
-	return 0;// Uncorrect
+	return 0;// закрыто с ошибкой
 }
-
-int Matrix::Pathfinder(){
+/*int Matrix::Pathfinder(){
 	path = new int[n];
 	for (int i = 0; i < n; i++){
 		path[i] = i;
@@ -172,7 +171,7 @@ int Matrix::Pathfinder(){
 	}
 	//path[0] = 0;//Do uncorrect output
 	return 1;//path found
-}
+}*/
 int** Matrix::getArr(){
 	return arr;
 }
