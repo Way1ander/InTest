@@ -9,6 +9,7 @@ private:
 	Animal* animals;
 	int animnum;
 	int* path = 0;
+	const int inf = 1000;
 public:
 	Matrix();
 	int Read(char* file);

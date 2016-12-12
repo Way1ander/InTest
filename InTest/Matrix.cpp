@@ -105,7 +105,10 @@ int Matrix::Read(char* filename)
 					return 4;//На главной диагонали присутствует число, отличное от 0 (путь от животного к самому себе !=0)
 				}
 				else{
-					if (i < n) arr[i][j] = (int)cur;
+					if (i < n){
+						if (i != j)	arr[i][j] = (int)cur;
+						else arr[i][j] = inf;
+					}
 				}
 
 				if (i == n && (cur < 0 || cur >= animnum)){
@@ -123,6 +126,9 @@ int Matrix::Read(char* filename)
 		}
 	}
 	infile.close();
+	for (int i = 0; i < n; i++)
+		for (int j = 0; j < n; j++)
+			if (arr[i][j] != arr[j][i]) return 10;
 	return 0;
 }
 
